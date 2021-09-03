@@ -114,7 +114,5 @@ function adaptTotalSumma(){
 function removeCount(event){
     if(event.target.parentElement.classList == 'right__text'){
         // let bool = confirm();
-        console.log(count[event.target.textContent] || );
-
     }
 }
