@@ -1,8 +1,6 @@
 let list = localStorage.list ? JSON.parse(localStorage.list) : localStorage.list = JSON.stringify({milk: false, fruit : true,});   
 let count = localStorage.count ? JSON.parse(localStorage.count) : {};
-const TOTAL_SUMMA = 2000;
-
-// localStorage.count = JSON.stringify({lenta: 1300, magnit : 540,})
+const TOTAL_SUMMA = 2000;               
 
 //remove all data
 document.addEventListener('click', event => event.target.textContent == 'Count' ? localStorage.removeItem('list') : null);
@@ -10,6 +8,7 @@ document.addEventListener('click', event => event.target.textContent == 'Count' 
 
 
 document.addEventListener('dblclick', removeCount);
+document.addEventListener('dblclick', removeList);
 //show data
 document.addEventListener('DOMContentLoaded', show);
 //click left list strick
@@ -23,23 +22,23 @@ right__button.addEventListener('click', newCount);
 
 function show(){
     //right list
-    for(let key in list) {
+    for (let key in list) {
         let str;
         list[key] ? str = `<li >${key}</li>` : str =  `<li class="active">${key}</li>`;
         leftUl.insertAdjacentHTML('beforeend', str);
     };
 
     //left list
-    if(count == undefined) return;
+    if(JSON.stringify(count) == '{}') return;
+
     let block = document.querySelector('.right__container');
-    for(let key in count) {
+    for (let key in count) {
         let str = `<div class="right__text">
                         <div class="right__block__text">${key}</div>
                         <div class="right__block__text">${count[key]}</div>
                     </div>`;
         block.insertAdjacentHTML('beforeend', str);
     };
-
     adaptTotalSumma();
 };
 
@@ -60,12 +59,12 @@ function newLi(){
 
     document.querySelector('input').addEventListener('blur', cbf, {once: true});
 
-    function cbf (event) {
-        let value = document.querySelector ('ul').lastChild.lastChild.value;
-        document.querySelector ('ul').lastChild.lastChild.remove();
-        document.querySelector ('ul').lastElementChild.textContent = value;
-        list[document.querySelector ('ul').lastElementChild.textContent ]= true;
-        localStorage.list = JSON.stringify (list)
+    function cbf(event) {
+        let value = document.querySelector('ul').lastChild.lastChild.value;
+        document.querySelector('ul').lastChild.lastChild.remove();
+        document.querySelector('ul').lastElementChild.textContent = value;
+        list[document.querySelector('ul').lastElementChild.textContent ]= true;
+        localStorage.list = JSON.stringify(list);
     }
 };
 
@@ -82,10 +81,10 @@ function newCount(){
 
     buttonOk.addEventListener('click', cbf, {once: true});
 
-    function cbf(event){
+    function cbf(event) {
         let rightBlock = document.querySelector('.right__block');
 
-        if(rightBlock.firstElementChild.value === '' || rightBlock.firstElementChild.nextElementSibling.value === ''){
+        if (rightBlock.firstElementChild.value === '' || rightBlock.firstElementChild.nextElementSibling.value === ''){
             rightBlock.remove();
             return;
         };
@@ -111,8 +110,30 @@ function adaptTotalSumma(){
     h3.textContent = `${Object.values(count).reduce((a, b) => +a + +b )} / ${TOTAL_SUMMA}`;
 };
 
-function removeCount(event){
-    if(event.target.parentElement.classList == 'right__text'){
-        // let bool = confirm();
-    }
+function removeCount(event) {
+    if (event.target.parentElement.classList == 'right__text') {
+        if (!isNaN(Number(event.target.textContent))) return;   
+        if (confirm('Do you really want remove - ' + event.target.textContent)) {
+            delete count[event.target.textContent];
+            localStorage.count = JSON.stringify(count);
+            clearBlocks();
+            show();            
+        };
+    };
+};
+
+function removeList(event) {
+    if (event.target.tagName == 'LI') {
+        if (confirm('Do you really want remove - ' + event.target.textContent)) {
+            delete list[event.target.textContent];
+            localStorage.list = JSON.stringify(list);
+            clearBlocks();
+            show();            
+        };
+    };
+};
+
+function clearBlocks() {
+    leftUl.innerHTML = ''; 
+    document.querySelector('.right__container').innerHTML = '';
 }
