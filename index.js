@@ -1,11 +1,9 @@
-let list = localStorage.list ? JSON.parse(localStorage.list) : localStorage.list = JSON.stringify({milk: false, fruit : true,});   
+let list = localStorage.list ? JSON.parse(localStorage.list) : localStorage.list = JSON.stringify({milk: true, fruit : true,});   
 let count = localStorage.count ? JSON.parse(localStorage.count) : {};
 const TOTAL_SUMMA = 2000;               
 
 //remove all data
-document.addEventListener('click', event => event.target.textContent == 'Count' ? localStorage.removeItem('list') : null);
-document.addEventListener('click', event => event.target.textContent == 'Count' ? localStorage.removeItem('count') : null);
-
+document.addEventListener('click', removeAllData);
 
 document.addEventListener('dblclick', removeCount);
 document.addEventListener('dblclick', removeList);
@@ -20,7 +18,18 @@ right__button.addEventListener('click', newCount);
 
 
 
+function removeAllData(event) {
+    if (event.target.textContent == 'Count') {
+        localStorage.removeItem('list');
+        localStorage.removeItem('count');
+        clearBlocks();
+        show();
+        adaptTotalSumma();
+    }
+};
+
 function show(){
+    adaptTotalSumma();
     //right list
     for (let key in list) {
         let str;
@@ -38,8 +47,7 @@ function show(){
                         <div class="right__block__text">${count[key]}</div>
                     </div>`;
         block.insertAdjacentHTML('beforeend', str);
-    };
-    adaptTotalSumma();
+    };  
 };
 
 function strick(event){
@@ -59,8 +67,14 @@ function newLi(){
 
     document.querySelector('input').addEventListener('blur', cbf, {once: true});
 
-    function cbf(event) {
+    function cbf(event) {   
         let value = document.querySelector('ul').lastChild.lastChild.value;
+        if (value == '') {
+            document.querySelector('ul').lastChild.lastChild.remove();
+            clearBlocks();
+            show();
+            return;
+        }
         document.querySelector('ul').lastChild.lastChild.remove();
         document.querySelector('ul').lastElementChild.textContent = value;
         list[document.querySelector('ul').lastElementChild.textContent ]= true;
@@ -73,7 +87,7 @@ function newCount(){
 
     let str = `<div class="right__block">
                     <input type="text" name="" id="">
-                    <input type="text" name="" id="">
+                    <input type="number" name="" id="">
                     <button id="buttonOk">ok</button>
                 </div>`;
     let block = document.querySelector('.right__container');
@@ -107,7 +121,10 @@ function newCount(){
 //summa
 function adaptTotalSumma(){
     let h3 = document.querySelector('h3');
-    h3.textContent = `${Object.values(count).reduce((a, b) => +a + +b )} / ${TOTAL_SUMMA}`;
+    h3.textContent = `${Object.values(count).reduce((a, b) => +a + +b, 0)} / ${TOTAL_SUMMA}`;
+
+    let restMoney = document.querySelector('.restMoney');
+    restMoney.textContent = TOTAL_SUMMA - Object.values(count).reduce((a, b) => +a + +b, 0);  
 };
 
 function removeCount(event) {
@@ -117,6 +134,7 @@ function removeCount(event) {
             delete count[event.target.textContent];
             localStorage.count = JSON.stringify(count);
             clearBlocks();
+            adaptTotalSumma();
             show();            
         };
     };
@@ -128,6 +146,7 @@ function removeList(event) {
             delete list[event.target.textContent];
             localStorage.list = JSON.stringify(list);
             clearBlocks();
+            adaptTotalSumma();
             show();            
         };
     };
